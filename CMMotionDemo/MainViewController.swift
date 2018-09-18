@@ -37,6 +37,7 @@ class ViewController: UIViewController {
     }
     private var numOfHorizontalPic = 0
     private var progressViews = [UIProgressView]()
+    private var tiltStandar = 0.7
     
     internal var horizontalDegreeUnit = 0.0
     internal var verticalDegreeUnit = 0.0
@@ -430,10 +431,10 @@ extension ViewController: CLLocationManagerDelegate {
         var angle = CGFloat(heading)
         degreeLabel.text = "\(angle)"
         if let oldAngle = oldAngle {
-            if angle > CGFloat(oldAngle), self.accelZ < 0.7 {
+            if angle > CGFloat(oldAngle), self.accelZ < tiltStandar {
                 angle -= 360
             }
-            let diff = self.accelZ < 0.7 ? (angle - CGFloat(oldAngle)): -(angle - CGFloat(oldAngle))
+            let diff = self.accelZ < tiltStandar ? (angle - CGFloat(oldAngle)): -(angle - CGFloat(oldAngle))
             diffDegreeLabel.text = "diff: \(diff / CGFloat(numOfPicture))"
             let centerX = (diff * view.bounds.width / 2) / CGFloat(horizontalDegreeUnit)
             let slideCurrentCenterY = Double(slideView.center.y)
