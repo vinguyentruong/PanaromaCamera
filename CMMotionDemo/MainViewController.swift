@@ -36,7 +36,6 @@ class ViewController: UIViewController {
     }
     private var numOfHorizontalPic = 0
     
-    internal var verticalDegreeUnit = 0.0
     internal var horizontalDegreeUnit = 0.0
 
     @IBOutlet weak var continueButton: UIButton!
@@ -160,8 +159,8 @@ extension ViewController {
     }
     
     private func setupSlideView() {
-        let divider = view.bounds.height / 8
-        slideCenterYs = [divider * 3, divider, divider * 5, divider * 7]
+        let divider = view.bounds.height / 5
+        slideCenterYs = [divider * 2, divider, divider * 3, divider * 4]
         greenViewX = previewCaptureView.bounds.width
         slideView.backgroundColor = UIColor.clear
         previewCaptureView.backgroundColor = UIColor.clear
@@ -206,9 +205,8 @@ extension ViewController {
 extension ViewController {
     
     private func takePicture() {
-        let settings = AVCapturePhotoSettings()
-        photoOutput?.capturePhoto(with: settings, delegate: self)
-        
+//        let settings = AVCapturePhotoSettings()
+//        photoOutput?.capturePhoto(with: settings, delegate: self)
         let greenView = UIView(frame: CGRect(x: (previewCaptureView.bounds.width - greenViewWidth)/2 + greenViewWidth * CGFloat(numOfPicture), y: 0, width: greenViewWidth, height: previewCaptureView.bounds.height))
         greenView.backgroundColor = UIColor.green
         previewCaptureView.addSubview(greenView)
@@ -234,7 +232,7 @@ extension ViewController {
         default:
             break
         }
-        showInfor()
+//        showInfor()
     }
     
     private func resetSlideViews() {
@@ -422,14 +420,17 @@ extension ViewController: CLLocationManagerDelegate {
             self.previewCaptureView.transform = CGAffineTransform(translationX: centerX, y: 0)
             self.slideView.transform = CGAffineTransform(translationX: centerX, y: 0)
             
-            if abs(diff) >= CGFloat(horizontalDegreeUnit), lastCenter - centerX >= greenViewWidth - 10, abs(slideCurrentCenterY - viewHeight) <= 20.0 {
-                print("take picture")
+            if
+                abs(diff) >= CGFloat(horizontalDegreeUnit * Double(numOfPicture)),
+                lastCenter - centerX >= greenViewWidth - 10,
+                abs(slideCurrentCenterY - viewHeight) <= 20.0 {
+                print("take picture",oldAngle,angle,diff,lastCenter, abs(slideCurrentCenterY - viewHeight))
                 lastCenter -= greenViewWidth
                 takePicture()
                 if numOfPicture != 0, numOfPicture % numOfHorizontalPic == 0 {
-                    numOfPicture = 0
                     continueButton.isHidden = false
                     lineNumber = min(lineNumber + 1, 3)
+                    numOfPicture = 0
                     resetSlideViews()
                 }
             }

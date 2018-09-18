@@ -148,12 +148,12 @@
 				E2682082214F57B9009F6A7C /* CLLocation+Extension.swift */,
 				E268207D214E4D4E009F6A7C /* Number+Extension.swift */,
 				E2682084214F8323009F6A7C /* ImageSpecifications.swift */,
-				E2B8F66F214DF9FF00D49418 /* AppDelegate.swift */,
 				E2B8F671214DF9FF00D49418 /* MainViewController.swift */,
 				E21F90312150700100A1E5A6 /* InputViewController.swift */,
 				E2B8F673214DF9FF00D49418 /* Main.storyboard */,
-				E2B8F676214DFA0000D49418 /* Assets.xcassets */,
 				E2B8F678214DFA0000D49418 /* LaunchScreen.storyboard */,
+				E2B8F66F214DF9FF00D49418 /* AppDelegate.swift */,
+				E2B8F676214DFA0000D49418 /* Assets.xcassets */,
 				E2B8F67B214DFA0000D49418 /* Info.plist */,
 			);
 			path = CMMotionDemo;
