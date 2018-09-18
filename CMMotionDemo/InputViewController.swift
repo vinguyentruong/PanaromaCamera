@@ -10,6 +10,7 @@ import UIKit
 
 class InputViewController: UIViewController {
     
+    @IBOutlet weak var verticalDegreeInput: UITextField!
     @IBOutlet weak var horizontalDegreeTextField: UITextField!
     
     @IBOutlet weak var nextButton: UIButton!
@@ -22,11 +23,15 @@ class InputViewController: UIViewController {
     @IBAction func nextAction(_ sender: Any) {
         guard
             let horizontalDegree = Double(horizontalDegreeTextField.text ?? ""),
+            let verticalDegree = Double(verticalDegreeInput.text ?? ""),
             horizontalDegree < 360.0,
             horizontalDegree > 0,
+            verticalDegree < 360.0,
+            verticalDegree > 0,
             let mainView = UIStoryboard.init(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "ViewController") as? ViewController else {
             return
         }
+        mainView.verticalDegreeUnit = verticalDegree
         mainView.horizontalDegreeUnit = horizontalDegree
         navigationController?.pushViewController(mainView, animated: true)
     }
