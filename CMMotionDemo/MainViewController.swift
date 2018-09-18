@@ -34,10 +34,14 @@ class ViewController: UIViewController {
     private var greenViewWidth: CGFloat {
         return view.bounds.width / 2
     }
+    private var numOfHorizontalPic = 0
     
     internal var verticalDegreeUnit = 0.0
     internal var horizontalDegreeUnit = 0.0
 
+    @IBOutlet weak var continueButton: UIButton!
+    @IBOutlet weak var totalPicLabel: UILabel!
+    @IBOutlet weak var degreeLabel: UILabel!
     @IBOutlet weak var captureButton: UIButton!
     @IBOutlet weak var noticeLable: UILabel!
     @IBOutlet weak var lineFourProgressView: UIProgressView!
@@ -77,6 +81,7 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        setupViews()
         setupMagnetic()
         setupSlideView()
         setupCoreMotion()
@@ -116,6 +121,16 @@ class ViewController: UIViewController {
         navigationController?.popViewController(animated: true)
     }
     
+    @IBAction func continueAction(_ sender: Any) {
+        let slideCurrentCenterY = Double(slideView.center.y)
+        let viewHeight = Double(view.bounds.height / 2)
+        if isCaptured, abs(slideCurrentCenterY - viewHeight) <= 20.0 {
+            continueButton.isHidden = true
+            oldAngle = ((locationManager.heading!.trueHeading > 0) ?
+                locationManager.heading?.trueHeading : locationManager.heading?.magneticHeading)!
+            takePicture()
+        }
+    }
     @IBAction func captureAction(_ sender: UIButton) {
         isCaptured = !isCaptured
         if isCaptured {
@@ -140,14 +155,19 @@ class ViewController: UIViewController {
 
 extension ViewController {
     
+    private func setupViews() {
+        continueButton.isHidden = true
+    }
+    
     private func setupSlideView() {
-        let divider = view.bounds.height / 5
-        slideCenterYs = [divider * 2, divider, divider * 3, divider * 4]
+        let divider = view.bounds.height / 8
+        slideCenterYs = [divider * 3, divider, divider * 5, divider * 7]
         greenViewX = previewCaptureView.bounds.width
         slideView.backgroundColor = UIColor.clear
         previewCaptureView.backgroundColor = UIColor.clear
+        numOfHorizontalPic =  Int(360 / horizontalDegreeUnit)
         var xPositionRedView: CGFloat = view.bounds.width / 2
-        for _ in 1..<10 {
+        for _ in 1...numOfHorizontalPic {
             let redCircleView = UIImageView(frame: CGRect(x: xPositionRedView - 50, y: slideView.bounds.height / 2 - 50, width: 100, height: 100))
             xPositionRedView += view.bounds.width / 2
             redCircleView.image = #imageLiteral(resourceName: "img_circle_red")
@@ -193,7 +213,8 @@ extension ViewController {
         greenView.backgroundColor = UIColor.green
         previewCaptureView.addSubview(greenView)
         numOfPicture += 1
-        if numOfPicture == 9, lineNumber == 3 {
+        totalPicLabel.text = "\(numOfPicture)"
+        if numOfPicture == numOfHorizontalPic, lineNumber == 3 {
             let alert = UIAlertController.init(title: "Success", message: "Capture completed", preferredStyle: .alert)
             alert.addAction(.init(title: "OK", style: .default, handler: {_ in
                 self.captureAction(self.captureButton)
@@ -203,13 +224,13 @@ extension ViewController {
         }
         switch lineNumber {
         case 0:
-            lineOneProgressView.progress = Float(numOfPicture) / 9.0
+            lineOneProgressView.progress = Float(numOfPicture) / Float(numOfHorizontalPic)
         case 1:
-            lineTwoProgressView.progress = Float(numOfPicture) / 9.0
+            lineTwoProgressView.progress = Float(numOfPicture) / Float(numOfHorizontalPic)
         case 2:
-            lineThreeProgressView.progress = Float(numOfPicture) / 9.0
+            lineThreeProgressView.progress = Float(numOfPicture) / Float(numOfHorizontalPic)
         case 3:
-            lineFourProgressView.progress = Float(numOfPicture) / 9.0
+            lineFourProgressView.progress = Float(numOfPicture) / Float(numOfHorizontalPic)
         default:
             break
         }
@@ -222,8 +243,7 @@ extension ViewController {
         }
         slideView.transform = CGAffineTransform.identity
         previewCaptureView.transform = CGAffineTransform.identity
-        oldAngle = ((locationManager.heading!.trueHeading > 0) ?
-            locationManager.heading?.trueHeading : locationManager.heading?.magneticHeading)!
+        oldAngle = nil
         lastCenter = 0.0
     }
     
@@ -385,10 +405,14 @@ extension ViewController: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
         let heading: CLLocationDirection = ((newHeading.trueHeading > 0) ?
             newHeading.trueHeading : newHeading.magneticHeading)
-        let angle = CGFloat(heading)
+        var angle = CGFloat(heading)
+        degreeLabel.text = "\(angle)"
         if let oldAngle = oldAngle {
+            if angle > CGFloat(oldAngle) {
+                angle -= 360
+            }
             let diff = (angle - CGFloat(oldAngle))
-            let centerX = (diff * view.bounds.width / 2) / CGFloat(40)
+            let centerX = (diff * view.bounds.width / 2) / CGFloat(horizontalDegreeUnit)
             let slideCurrentCenterY = Double(slideView.center.y)
             let viewHeight = Double(view.bounds.height / 2)
             if centerX > 0 {
@@ -398,17 +422,15 @@ extension ViewController: CLLocationManagerDelegate {
             self.previewCaptureView.transform = CGAffineTransform(translationX: centerX, y: 0)
             self.slideView.transform = CGAffineTransform(translationX: centerX, y: 0)
             
-            if abs(diff) >= 40, lastCenter - centerX >= greenViewWidth - 10, abs(slideCurrentCenterY - viewHeight) <= 20.0 {
+            if abs(diff) >= CGFloat(horizontalDegreeUnit), lastCenter - centerX >= greenViewWidth - 10, abs(slideCurrentCenterY - viewHeight) <= 20.0 {
                 print("take picture")
                 lastCenter -= greenViewWidth
                 takePicture()
-                if numOfPicture != 0, numOfPicture % 9 == 0 {
+                if numOfPicture != 0, numOfPicture % numOfHorizontalPic == 0 {
                     numOfPicture = 0
+                    continueButton.isHidden = false
                     lineNumber = min(lineNumber + 1, 3)
                     resetSlideViews()
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                        self.takePicture()
-                    }
                 }
             }
         }
