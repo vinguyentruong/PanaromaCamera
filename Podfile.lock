@@ -1,3 +1,16 @@
-PODFILE CHECKSUM: f61b23853b1fd424761ee5cd072b2a86883615e2
+PODS:
+  - CTPanoramaView (1.1)
+
+DEPENDENCIES:
+  - CTPanoramaView (~> 1.0)
+
+SPEC REPOS:
+  https://github.com/CocoaPods/Specs.git:
+    - CTPanoramaView
+
+SPEC CHECKSUMS:
+  CTPanoramaView: 7d150988e7dfcf33ae91ceb07aec928ae32f7665
+
+PODFILE CHECKSUM: ba3cbf7c5206bb0a10efc57cf9b42f2e8e0a7607
 
 COCOAPODS: 1.5.0

@@ -6,7 +6,7 @@ target 'CMMotionDemo' do
   use_frameworks!
 
   # Pods for CMMotionDemo
-
+   pod 'CTPanoramaView', '~> 1.0'
   target 'CMMotionDemoTests' do
     inherit! :search_paths
     # Pods for testing

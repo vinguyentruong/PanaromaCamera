@@ -13,6 +13,7 @@ import CoreMotion
 import CoreLocation
 import Photos
 import CoreGraphics
+import CTPanoramaView
 
 class ViewController: UIViewController {
     
@@ -25,24 +26,20 @@ class ViewController: UIViewController {
     private let motionManager = CMMotionManager()
     private var isCaptured = false
     private var numOfPicture = 0
-    private var totalDegrees = 0.0
-    private var locationManager = CLLocationManager()
-    private var oldAngle: CLLocationDirection? = nil
     private var greenViewX: CGFloat = 100.0
-    private var lastCenter: CGFloat = 0.0
     private var slideCenterYs = [CGFloat]()
     private var lineNumber = 0
+    private var numOfHorizontalPic = 0
+    private var resetToNewLine = false
+    private var progressViews = [UIProgressView]()
+    private var panaromaView: CTPanoramaView!
     private var greenViewWidth: CGFloat {
         return view.bounds.width / 2
     }
-    private var numOfHorizontalPic = 0
-    private var progressViews = [UIProgressView]()
-    private var tiltStandar = 0.7
     
     internal var horizontalDegreeUnit = 0.0
     internal var verticalDegreeUnit = 0.0
     
-
     @IBOutlet weak var continueButton: UIButton!
     @IBOutlet weak var totalPicLabel: UILabel!
     @IBOutlet weak var degreeLabel: UILabel!
@@ -84,8 +81,7 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        setupViews()
-        setupMagnetic()
+        setupPanaromaView()
         setupSlideView()
         setupProgressView()
         setupCoreMotion()
@@ -113,6 +109,7 @@ class ViewController: UIViewController {
     }
     
     // MARK: IBAction
+    
     @IBAction func backAction(_ sender: Any) {
         captureButton.setImage(#imageLiteral(resourceName: "Start_Camera"), for: .normal)
         resetSlideViews()
@@ -124,25 +121,13 @@ class ViewController: UIViewController {
         navigationController?.popViewController(animated: true)
     }
     
-    @IBAction func continueAction(_ sender: Any) {
-        let slideCurrentCenterY = Double(slideView.center.y)
-        let viewHeight = Double(view.bounds.height / 2)
-        if isCaptured, abs(slideCurrentCenterY - viewHeight) <= 20.0 {
-            continueButton.isHidden = true
-            oldAngle = ((locationManager.heading!.trueHeading > 0) ?
-                locationManager.heading?.trueHeading : locationManager.heading?.magneticHeading)!
-            oldDegreeLabel.text = "old: \(oldAngle!)"
-            takePicture()
-        }
-    }
     @IBAction func captureAction(_ sender: UIButton) {
         isCaptured = !isCaptured
         if isCaptured {
             sender.setImage(#imageLiteral(resourceName: "Stop_Camera"), for: .normal)
-            oldAngle = ((locationManager.heading!.trueHeading > 0) ?
-                locationManager.heading?.trueHeading : locationManager.heading?.magneticHeading)!
-            oldDegreeLabel.text = "old: \(oldAngle!)"
+            resetToNewLine = true
             takePicture()
+            startHorizonScrollSlideView()
         } else {
             sender.setImage(#imageLiteral(resourceName: "Start_Camera"), for: .normal)
             resetSlideViews()
@@ -151,6 +136,7 @@ class ViewController: UIViewController {
             progressViews.forEach { (progressView) in
                 progressView.progress = 0
             }
+            resetHorizonScrollView()
         }
     }
 }
@@ -159,8 +145,13 @@ class ViewController: UIViewController {
 
 extension ViewController {
     
-    private func setupViews() {
-        continueButton.isHidden = true
+    private func setupPanaromaView() {
+        panaromaView = CTPanoramaView()
+        view.addSubview(panaromaView)
+        view.sendSubview(toBack: panaromaView)
+        panaromaView.panoramaType = .spherical
+        panaromaView.controlMethod = .touch  // Touch based control
+        panaromaView.controlMethod = .motion
     }
     
     private func setupSlideView() {
@@ -212,15 +203,6 @@ extension ViewController {
             progressView.progress = 0
         }
     }
-    
-    private func setupMagnetic() {
-        locationManager.delegate = self
-        //Start heading updating.
-        if CLLocationManager.headingAvailable() {
-            locationManager.headingFilter = 1
-            locationManager.startUpdatingHeading()
-        }
-    }
 }
 
 // MARK: Actions
@@ -230,7 +212,12 @@ extension ViewController {
     private func takePicture() {
 //        let settings = AVCapturePhotoSettings()
 //        photoOutput?.capturePhoto(with: settings, delegate: self)
-        let greenView = UIView(frame: CGRect(x: (previewCaptureView.bounds.width - greenViewWidth)/2 + greenViewWidth * CGFloat(numOfPicture), y: 0, width: greenViewWidth, height: previewCaptureView.bounds.height))
+        let xFrameGreenView = (previewCaptureView.bounds.width - greenViewWidth)/2 + greenViewWidth * CGFloat(numOfPicture)
+        let greenView = UIView(frame: CGRect(
+                                            x       : xFrameGreenView,
+                                            y       : 0,
+                                            width   : greenViewWidth,
+                                            height  : previewCaptureView.bounds.height))
         greenView.backgroundColor = UIColor.green
         previewCaptureView.addSubview(greenView)
         numOfPicture += 1
@@ -247,15 +234,19 @@ extension ViewController {
         showInfor()
     }
     
+    private func moveToNewLine() {
+        self.lineNumber = min(self.lineNumber + 1, self.slideCenterYs.count - 1)
+        self.numOfPicture = 0
+        self.resetSlideViews()
+        self.resetToNewLine = true
+    }
+    
     private func resetSlideViews() {
         previewCaptureView.subviews.forEach { (view) in
             view.removeFromSuperview()
         }
         slideView.transform = CGAffineTransform.identity
         previewCaptureView.transform = CGAffineTransform.identity
-        oldAngle = nil
-        oldDegreeLabel.text = "old: nil"
-        lastCenter = 0.0
     }
     
     private func showInfor() {
@@ -274,6 +265,52 @@ extension ViewController {
         imageSpecification.yaw = yaw
         
         print(imageSpecification.toString())
+    }
+    
+    private func resetHorizonScrollView() {
+        panaromaView.movementHandler = nil
+    }
+    
+    private func startHorizonScrollSlideView() {
+        var totalAngle = 0
+        var floorAngle = 0
+        panaromaView.movementHandler = { [weak self] rotateAngle, _ in
+            guard let sSelf = self else {
+                return
+            }
+            let angle = rotateAngle.radiansToDegrees
+            let slideCurrentCenterY = Double(sSelf.slideView.center.y)
+            let viewHeight = Double(sSelf.view.bounds.height / 2)
+            
+            if sSelf.isCaptured, sSelf.resetToNewLine {
+                sSelf.resetToNewLine = false
+                floorAngle = Int(floor(Double(angle)))
+            }
+            
+            if (Int(floor(Double(angle))) - floorAngle) >= 1 {
+                totalAngle += 1
+            } else if (Int(floor(Double(angle))) - floorAngle) <= -1 {
+                totalAngle -= 1
+            }
+            floorAngle = Int(floor(Double(angle)))
+            if totalAngle < 0 {
+                return
+            }
+            sSelf.degreeLabel.text = "degree: \(Int(floor(Double(angle))))"
+            let centerX = -CGFloat(Double(totalAngle) / sSelf.horizontalDegreeUnit) * sSelf.view.bounds.width / 2
+            sSelf.previewCaptureView.transform = CGAffineTransform(translationX: centerX, y: 0)
+            sSelf.slideView.transform = CGAffineTransform(translationX: centerX, y: 0)
+            
+            if
+                Double(totalAngle) >= sSelf.horizontalDegreeUnit * Double(sSelf.numOfPicture),
+                abs(slideCurrentCenterY - viewHeight) <= 10.0 {
+                sSelf.takePicture()
+                if sSelf.numOfPicture != 0, sSelf.numOfPicture % sSelf.numOfHorizontalPic == 0 {
+                    sSelf.moveToNewLine()
+                    totalAngle = 0
+                }
+            }
+        }
     }
     
     private func saveImageToLibrary(data: Data){
@@ -418,49 +455,6 @@ extension ViewController {
     
     private func startRunningCaptureSession() {
         captureSession.startRunning()
-    }
-}
-
-// MARK: CLLocationManagerDelegate
-
-extension ViewController: CLLocationManagerDelegate {
-    
-    func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
-        let heading: CLLocationDirection = ((newHeading.trueHeading > 0) ?
-            newHeading.trueHeading : newHeading.magneticHeading)
-        var angle = CGFloat(heading)
-        degreeLabel.text = "\(angle)"
-        if let oldAngle = oldAngle {
-            if angle > CGFloat(oldAngle), self.accelZ < tiltStandar {
-                angle -= 360
-            }
-            let diff = self.accelZ < tiltStandar ? (angle - CGFloat(oldAngle)): -(angle - CGFloat(oldAngle))
-            diffDegreeLabel.text = "diff: \(diff / CGFloat(numOfPicture))"
-            let centerX = (diff * view.bounds.width / 2) / CGFloat(horizontalDegreeUnit)
-            let slideCurrentCenterY = Double(slideView.center.y)
-            let viewHeight = Double(view.bounds.height / 2)
-            if centerX > 0 {
-                self.oldAngle = CLLocationDirection(angle)
-                return
-            }
-            self.previewCaptureView.transform = CGAffineTransform(translationX: centerX, y: 0)
-            self.slideView.transform = CGAffineTransform(translationX: centerX, y: 0)
-            
-            if
-                abs(diff) >= CGFloat(horizontalDegreeUnit * Double(numOfPicture)),
-                lastCenter - centerX >= greenViewWidth - 10,
-                abs(slideCurrentCenterY - viewHeight) <= 10.0 {
-                print("take picture",oldAngle,angle,diff,lastCenter, abs(slideCurrentCenterY - viewHeight))
-                lastCenter -= greenViewWidth
-                takePicture()
-                if numOfPicture != 0, numOfPicture % numOfHorizontalPic == 0 {
-                    continueButton.isHidden = false
-                    lineNumber = min(lineNumber + 1, slideCenterYs.count - 1)
-                    numOfPicture = 0
-                    resetSlideViews()
-                }
-            }
-        }
     }
 }
 
