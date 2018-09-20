@@ -28,6 +28,8 @@ class ImageSpecifications {
     internal var pitch: Double!
     internal var yaw: Double!
     
+    internal var degree: Double!
+    
     internal func toString() -> String {
         var s = ""
         s += "Acceleration: \nX:\(accelX!)\nY:\(accelY!)\nZ:\(accelZ!)\n"
@@ -39,26 +41,29 @@ class ImageSpecifications {
     
     internal func toJson() -> JSON {
         var dictionary = [String: Any]()
+        var sensorDictionary = [String: Any]()
         var accelDic = [String: Any]()
         accelDic["x"] = accelX
         accelDic["y"] = accelY
         accelDic["z"] = accelZ
-        dictionary["anccelerometr"] = accelDic
+        sensorDictionary["anccelerometr"] = accelDic
         var gyroDic = [String: Any]()
         gyroDic["x"] = gyroX
         gyroDic["y"] = gyroY
         gyroDic["z"] = gyroZ
-        dictionary["gyroscope"] = gyroDic
+        sensorDictionary["gyroscope"] = gyroDic
         var magneDic = [String: Any]()
         magneDic["x"] = magneticX
         magneDic["y"] = magneticY
         magneDic["z"] = magneticZ
-        dictionary["magnetometr"] = magneDic
+        sensorDictionary["magnetometr"] = magneDic
         var rpy = [String: Any]()
         rpy["roll"] = roll
         rpy["pitch"] = pitch
         rpy["yaw"] = yaw
-        dictionary["roll_pitch_yaw"] = rpy
+        sensorDictionary["roll_pitch_yaw"] = rpy
+        dictionary["degrees"] = degree
+        dictionary["sensors"] = sensorDictionary
         let json = JSON(dictionary)
         return json
     }

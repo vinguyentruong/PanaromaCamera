@@ -215,6 +215,9 @@ extension ViewController {
 extension ViewController {
     
     private func takePicture() {
+        if numOfPicture > numOfHorizontalPic {
+            return
+        }
         let settings = AVCapturePhotoSettings()
         photoOutput?.capturePhoto(with: settings, delegate: self)
         let xFrameGreenView = (previewCaptureView.bounds.width - greenViewWidth)/2 + greenViewWidth * CGFloat(numOfPicture)
@@ -227,10 +230,12 @@ extension ViewController {
         previewCaptureView.addSubview(greenView)
         numOfPicture += 1
         totalPicLabel.text = "\(numOfPicture)"
+        progressViews[lineNumber].progress = Float(numOfPicture) / Float(numOfHorizontalPic)
+        saveInfor()
         if numOfPicture == numOfHorizontalPic, lineNumber == slideCenterYs.count - 1 {
+            self.captureAction(self.captureButton)
             let alert = UIAlertController.init(title: "Success", message: "Capture completed", preferredStyle: .alert)
             alert.addAction(.init(title: "OK", style: .default, handler: {_ in
-                self.captureAction(self.captureButton)
                 let vc = RawEXIFViewController()
                 let json = JSON(self.savedImagesJson)
                 vc.rawEXIF = json.rawString()
@@ -239,8 +244,6 @@ extension ViewController {
             self.present(alert, animated: true, completion: nil)
             return
         }
-        progressViews[lineNumber].progress = Float(numOfPicture) / Float(numOfHorizontalPic)
-        saveInfor()
     }
     
     private func moveToNewLine() {
@@ -272,6 +275,7 @@ extension ViewController {
         imageSpecification.roll = roll
         imageSpecification.pitch = pitch
         imageSpecification.yaw = yaw
+        imageSpecification.degree = Double(numOfPicture - 1) * horizontalDegreeUnit
         
         self.savedImagesJson.append(imageSpecification.toJson())
     }
@@ -316,8 +320,10 @@ extension ViewController {
                 abs(slideCurrentCenterY - viewHeight) <= 10.0 {
                 sSelf.takePicture()
                 if sSelf.numOfPicture != 0, sSelf.numOfPicture % sSelf.numOfHorizontalPic == 0 {
-                    sSelf.moveToNewLine()
-                    totalAngle = 0
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {
+                        sSelf.moveToNewLine()
+                        totalAngle = 0
+                    })
                 }
             }
         }

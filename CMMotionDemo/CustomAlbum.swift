@@ -18,6 +18,9 @@ class CustomAlbum {
     
     init() {
         
+    }
+    
+    func createAlbum() {
         func fetchAssetCollectionForAlbum() -> PHAssetCollection! {
             
             let fetchOptions = PHFetchOptions()
