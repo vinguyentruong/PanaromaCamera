@@ -14,6 +14,7 @@ import CoreLocation
 import Photos
 import CoreGraphics
 import CTPanoramaView
+import SwiftyJSON
 
 class ViewController: UIViewController {
     
@@ -33,6 +34,7 @@ class ViewController: UIViewController {
     private var resetToNewLine = false
     private var progressViews = [UIProgressView]()
     private var panaromaView: CTPanoramaView!
+    private var savedImagesJson = [JSON]()
     private var greenViewWidth: CGFloat {
         return view.bounds.width / 2
     }
@@ -100,12 +102,14 @@ class ViewController: UIViewController {
         super.viewDidAppear(animated)
         
         setupPreviewLayer()
+        resetHorizonScrollView()
     }
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         
         captureSession.stopRunning()
+        resetHorizonScrollView()
     }
     
     // MARK: IBAction
@@ -136,6 +140,7 @@ class ViewController: UIViewController {
             progressViews.forEach { (progressView) in
                 progressView.progress = 0
             }
+            resetToNewLine = false
             resetHorizonScrollView()
         }
     }
@@ -210,8 +215,8 @@ extension ViewController {
 extension ViewController {
     
     private func takePicture() {
-//        let settings = AVCapturePhotoSettings()
-//        photoOutput?.capturePhoto(with: settings, delegate: self)
+        let settings = AVCapturePhotoSettings()
+        photoOutput?.capturePhoto(with: settings, delegate: self)
         let xFrameGreenView = (previewCaptureView.bounds.width - greenViewWidth)/2 + greenViewWidth * CGFloat(numOfPicture)
         let greenView = UIView(frame: CGRect(
                                             x       : xFrameGreenView,
@@ -226,12 +231,16 @@ extension ViewController {
             let alert = UIAlertController.init(title: "Success", message: "Capture completed", preferredStyle: .alert)
             alert.addAction(.init(title: "OK", style: .default, handler: {_ in
                 self.captureAction(self.captureButton)
+                let vc = RawEXIFViewController()
+                let json = JSON(self.savedImagesJson)
+                vc.rawEXIF = json.rawString()
+                self.navigationController?.pushViewController(vc, animated: true)
             }))
             self.present(alert, animated: true, completion: nil)
             return
         }
         progressViews[lineNumber].progress = Float(numOfPicture) / Float(numOfHorizontalPic)
-        showInfor()
+        saveInfor()
     }
     
     private func moveToNewLine() {
@@ -249,7 +258,7 @@ extension ViewController {
         previewCaptureView.transform = CGAffineTransform.identity
     }
     
-    private func showInfor() {
+    private func saveInfor() {
         let imageSpecification = ImageSpecifications()
         imageSpecification.accelX = accelX
         imageSpecification.accelY = accelY
@@ -264,7 +273,7 @@ extension ViewController {
         imageSpecification.pitch = pitch
         imageSpecification.yaw = yaw
         
-        print(imageSpecification.toString())
+        self.savedImagesJson.append(imageSpecification.toJson())
     }
     
     private func resetHorizonScrollView() {
@@ -294,6 +303,7 @@ extension ViewController {
             }
             floorAngle = Int(floor(Double(angle)))
             if totalAngle < 0 {
+                totalAngle = 0
                 return
             }
             sSelf.degreeLabel.text = "degree: \(Int(floor(Double(angle))))"
@@ -309,25 +319,6 @@ extension ViewController {
                     sSelf.moveToNewLine()
                     totalAngle = 0
                 }
-            }
-        }
-    }
-    
-    private func saveImageToLibrary(data: Data){
-        PHPhotoLibrary.requestAuthorization { (status:PHAuthorizationStatus) in
-            if status == .authorized {
-                PHPhotoLibrary.shared().performChanges({
-                    let creationRequest = PHAssetCreationRequest.forAsset()
-                    creationRequest.addResource(with: .photo, data: data, options: nil)
-                }, completionHandler: { (success, error) in
-                    if let error = error {
-                        print("There was an error saving to the photo library: \(error)")
-                        return
-                    }
-                    print("image saved")
-                })
-            } else {
-                print("Need authorisation to write to the photo library")
             }
         }
     }
@@ -463,8 +454,8 @@ extension ViewController {
 extension ViewController: AVCapturePhotoCaptureDelegate {
     
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
-        if let imageData = photo.fileDataRepresentation(){
-            saveImageToLibrary(data: imageData)
+        if let imageData = photo.fileDataRepresentation(), let image = UIImage(data: imageData){
+            CustomAlbum.shared.saveImage(image: image)
         }
     }
     

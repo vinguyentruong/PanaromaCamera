@@ -7,6 +7,7 @@ target 'CMMotionDemo' do
 
   # Pods for CMMotionDemo
    pod 'CTPanoramaView', '~> 1.0'
+   pod 'SwiftyJSON'
   target 'CMMotionDemoTests' do
     inherit! :search_paths
     # Pods for testing

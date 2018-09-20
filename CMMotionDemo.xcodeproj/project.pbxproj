@@ -20,6 +20,9 @@
 		E2B8F67A214DFA0000D49418 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E2B8F678214DFA0000D49418 /* LaunchScreen.storyboard */; };
 		E2B8F685214DFA0000D49418 /* CMMotionDemoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B8F684214DFA0000D49418 /* CMMotionDemoTests.swift */; };
 		E2B8F690214DFA0000D49418 /* CMMotionDemoUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B8F68F214DFA0000D49418 /* CMMotionDemoUITests.swift */; };
+		E2D08B72215333D400954228 /* CustomAlbum.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2D08B71215333D400954228 /* CustomAlbum.swift */; };
+		E2D08B75215339BE00954228 /* RawEXIFViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2D08B73215339BD00954228 /* RawEXIFViewController.swift */; };
+		E2D08B76215339BE00954228 /* RawEXIFViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E2D08B74215339BE00954228 /* RawEXIFViewController.xib */; };
 		F0F9EBC18C12B13D48348DAB /* Pods_CMMotionDemoTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 77CF8C243E68DCE0A242861A /* Pods_CMMotionDemoTests.framework */; };
 /* End PBXBuildFile section */
 
@@ -66,6 +69,9 @@
 		E2B8F68B214DFA0000D49418 /* CMMotionDemoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CMMotionDemoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E2B8F68F214DFA0000D49418 /* CMMotionDemoUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CMMotionDemoUITests.swift; sourceTree = "<group>"; };
 		E2B8F691214DFA0000D49418 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E2D08B71215333D400954228 /* CustomAlbum.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomAlbum.swift; sourceTree = "<group>"; };
+		E2D08B73215339BD00954228 /* RawEXIFViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RawEXIFViewController.swift; sourceTree = "<group>"; };
+		E2D08B74215339BE00954228 /* RawEXIFViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = RawEXIFViewController.xib; sourceTree = "<group>"; };
 		FBBDB82DE7C8711D821F0D74 /* Pods-CMMotionDemo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CMMotionDemo.debug.xcconfig"; path = "Pods/Target Support Files/Pods-CMMotionDemo/Pods-CMMotionDemo.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -145,6 +151,9 @@
 		E2B8F66E214DF9FF00D49418 /* CMMotionDemo */ = {
 			isa = PBXGroup;
 			children = (
+				E2D08B73215339BD00954228 /* RawEXIFViewController.swift */,
+				E2D08B74215339BE00954228 /* RawEXIFViewController.xib */,
+				E2D08B71215333D400954228 /* CustomAlbum.swift */,
 				E2682082214F57B9009F6A7C /* CLLocation+Extension.swift */,
 				E268207D214E4D4E009F6A7C /* Number+Extension.swift */,
 				E2682084214F8323009F6A7C /* ImageSpecifications.swift */,
@@ -288,6 +297,7 @@
 				E2B8F67A214DFA0000D49418 /* LaunchScreen.storyboard in Resources */,
 				E2B8F677214DFA0000D49418 /* Assets.xcassets in Resources */,
 				E2B8F675214DF9FF00D49418 /* Main.storyboard in Resources */,
+				E2D08B76215339BE00954228 /* RawEXIFViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -316,10 +326,12 @@
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-CMMotionDemo/Pods-CMMotionDemo-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/CTPanoramaView/CTPanoramaView.framework",
+				"${BUILT_PRODUCTS_DIR}/SwiftyJSON/SwiftyJSON.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CTPanoramaView.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftyJSON.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -390,8 +402,10 @@
 				E268207E214E4D4E009F6A7C /* Number+Extension.swift in Sources */,
 				E2682083214F57B9009F6A7C /* CLLocation+Extension.swift in Sources */,
 				E2B8F672214DF9FF00D49418 /* MainViewController.swift in Sources */,
+				E2D08B75215339BE00954228 /* RawEXIFViewController.swift in Sources */,
 				E21F90322150700100A1E5A6 /* InputViewController.swift in Sources */,
 				E2682085214F8323009F6A7C /* ImageSpecifications.swift in Sources */,
+				E2D08B72215333D400954228 /* CustomAlbum.swift in Sources */,
 				E2B8F670214DF9FF00D49418 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

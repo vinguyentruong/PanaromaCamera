@@ -1,16 +1,20 @@
 PODS:
   - CTPanoramaView (1.1)
+  - SwiftyJSON (4.1.0)
 
 DEPENDENCIES:
   - CTPanoramaView (~> 1.0)
+  - SwiftyJSON
 
 SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
     - CTPanoramaView
+    - SwiftyJSON
 
 SPEC CHECKSUMS:
   CTPanoramaView: 7d150988e7dfcf33ae91ceb07aec928ae32f7665
+  SwiftyJSON: c29297daf073d2aa016295d5809cdd68045c39b3
 
-PODFILE CHECKSUM: ba3cbf7c5206bb0a10efc57cf9b42f2e8e0a7607
+PODFILE CHECKSUM: e99863c6f3d8bceed69b24ae7bce17be7d282267
 
 COCOAPODS: 1.5.0
