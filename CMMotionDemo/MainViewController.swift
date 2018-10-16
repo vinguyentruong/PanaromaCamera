@@ -2,8 +2,8 @@
 //  ViewController.swift
 //  CMMotionDemo
 //
-//  Created by David Nguyen Truong on 9/16/18.
-//  Copyright © 2018 David Nguyen Truong. All rights reserved.
+//  Created by Admin on 9/16/18.
+//  Copyright © 2018 PJTechGroup. All rights reserved.
 //
 
 import UIKit
@@ -17,6 +17,8 @@ import CTPanoramaView
 import SwiftyJSON
 
 class ViewController: UIViewController {
+    
+    var appDelegate = UIApplication.shared.delegate as! AppDelegate
     
     private var captureSession = AVCaptureSession()
     private var backCamera: AVCaptureDevice?
@@ -38,6 +40,7 @@ class ViewController: UIViewController {
     private var greenViewWidth: CGFloat {
         return view.bounds.width / 2
     }
+    private var verticalAngleLine = [Double]()
     
     internal var horizontalDegreeUnit = 0.0
     internal var verticalDegreeUnit = 0.0
@@ -96,6 +99,8 @@ class ViewController: UIViewController {
         super.viewWillAppear(animated)
         
         startRunningCaptureSession()
+        navigationController?.isNavigationBarHidden = true
+        UIApplication.shared.isIdleTimerDisabled = true
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -103,6 +108,12 @@ class ViewController: UIViewController {
         
         setupPreviewLayer()
         resetHorizonScrollView()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        UIApplication.shared.isIdleTimerDisabled = false
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -132,6 +143,7 @@ class ViewController: UIViewController {
             resetToNewLine = true
             takePicture()
             startHorizonScrollSlideView()
+            savedImagesJson = []
         } else {
             sender.setImage(#imageLiteral(resourceName: "Start_Camera"), for: .normal)
             resetSlideViews()
@@ -143,6 +155,18 @@ class ViewController: UIViewController {
             resetToNewLine = false
             resetHorizonScrollView()
         }
+    }
+}
+
+extension ViewController {
+    
+    private func roundDecimal(num: Double, numDecimal: Int) -> Double {
+        let multiplier = 10.0 * Double(numDecimal)
+        let value = Int(multiplier*num)
+        print(value)
+        let y = Double(value)/Double(multiplier)
+        print(y)
+        return y
     }
 }
 
@@ -169,6 +193,7 @@ extension ViewController {
                 slideCenterYs.append(divider * CGFloat(i))
             }
         }
+        
         greenViewX = previewCaptureView.bounds.width
         slideView.backgroundColor = UIColor.clear
         previewCaptureView.backgroundColor = UIColor.clear
@@ -176,15 +201,25 @@ extension ViewController {
         var xPositionRedView: CGFloat = view.bounds.width / 2
         for _ in 1...numOfHorizontalPic {
             let redCircleView = UIImageView(frame:
-                                            CGRect(x:       xPositionRedView - 50,
-                                                   y:       slideView.bounds.height / 2 - 50,
-                                                   width:   100,
-                                                   height:  100))
+                CGRect(x:       xPositionRedView - 50,
+                       y:       slideView.bounds.height / 2 - 50,
+                       width:   100,
+                       height:  100))
             xPositionRedView += view.bounds.width / 2
             redCircleView.image = #imageLiteral(resourceName: "img_circle_red")
             slideView.addSubview(redCircleView)
             widthConstraintSlideView.constant += view.bounds.width
             widthConstraintPreviewCapture.constant += view.bounds.width
+        }
+    }
+    
+    private func setupVerticalAngleLine() {
+        let maxLines = Int(180 / verticalDegreeUnit)
+        let minSpace = verticalDegreeUnit
+        var temp = 0.0
+        for i in 0..<maxLines {
+            verticalAngleLine[i] = temp - (Double(maxLines - 1)) / 2.0 * minSpace
+            temp += minSpace;
         }
     }
     
@@ -194,10 +229,10 @@ extension ViewController {
         let verticalUnit = Int(180/verticalDegreeUnit)
         for i in 0..<verticalUnit {
             let progress = UIProgressView(frame:
-                                        CGRect(x:      CGFloat(i%4)*(progressWidth + CGFloat(16)),
-                                               y:      CGFloat(i/4)*(progressHeight + 2),
-                                               width:  progressWidth,
-                                               height: progressHeight))
+                CGRect(x:      CGFloat(i%4)*(progressWidth + CGFloat(16)),
+                       y:      CGFloat(i/4)*(progressHeight + 2),
+                       width:  progressWidth,
+                       height: progressHeight))
             progress.progressTintColor = UIColor.green
             progress.clipsToBounds = true
             progress.layer.cornerRadius = 2
@@ -222,10 +257,10 @@ extension ViewController {
         photoOutput?.capturePhoto(with: settings, delegate: self)
         let xFrameGreenView = (previewCaptureView.bounds.width - greenViewWidth)/2 + greenViewWidth * CGFloat(numOfPicture)
         let greenView = UIView(frame: CGRect(
-                                            x       : xFrameGreenView,
-                                            y       : 0,
-                                            width   : greenViewWidth,
-                                            height  : previewCaptureView.bounds.height))
+            x       : xFrameGreenView,
+            y       : 0,
+            width   : greenViewWidth,
+            height  : previewCaptureView.bounds.height))
         greenView.backgroundColor = UIColor.green
         previewCaptureView.addSubview(greenView)
         numOfPicture += 1
@@ -263,19 +298,20 @@ extension ViewController {
     
     private func saveInfor() {
         let imageSpecification = ImageSpecifications()
-        imageSpecification.accelX = accelX
-        imageSpecification.accelY = accelY
-        imageSpecification.accelZ = accelZ
-        imageSpecification.gyroX = gyroX
-        imageSpecification.gyroY = gyroY
-        imageSpecification.gyroZ = gyroZ
-        imageSpecification.magneticX = magneticX
-        imageSpecification.magneticY = magneticY
-        imageSpecification.magneticZ = magneticZ
-        imageSpecification.roll = roll
-        imageSpecification.pitch = pitch
-        imageSpecification.yaw = yaw
+        imageSpecification.accelX = roundDecimal(num: accelX.radiansToDegrees, numDecimal: 1)
+        imageSpecification.accelY = roundDecimal(num: accelY.radiansToDegrees, numDecimal: 1)
+        imageSpecification.accelZ = roundDecimal(num: accelZ.radiansToDegrees, numDecimal: 1)
+        imageSpecification.gyroX = roundDecimal(num: gyroX.radiansToDegrees, numDecimal: 1)
+        imageSpecification.gyroY = roundDecimal(num: gyroY.radiansToDegrees, numDecimal: 1)
+        imageSpecification.gyroZ = roundDecimal(num: gyroZ.radiansToDegrees, numDecimal: 1)
+        imageSpecification.magneticX = roundDecimal(num: magneticX.radiansToDegrees, numDecimal: 1)
+        imageSpecification.magneticY = roundDecimal(num: magneticY.radiansToDegrees, numDecimal: 1)
+        imageSpecification.magneticZ = roundDecimal(num: magneticZ.radiansToDegrees, numDecimal: 1)
+        imageSpecification.roll = roundDecimal(num: roll.radiansToDegrees, numDecimal: 1)
+        imageSpecification.pitch = roundDecimal(num: pitch.radiansToDegrees, numDecimal: 1)
+        imageSpecification.yaw = roundDecimal(num: yaw.radiansToDegrees, numDecimal: 1)
         imageSpecification.degree = Double(numOfPicture - 1) * horizontalDegreeUnit
+        imageSpecification.ring = lineNumber + 1
         
         self.savedImagesJson.append(imageSpecification.toJson())
     }
@@ -314,10 +350,10 @@ extension ViewController {
             let centerX = -CGFloat(Double(totalAngle) / sSelf.horizontalDegreeUnit) * sSelf.view.bounds.width / 2
             sSelf.previewCaptureView.transform = CGAffineTransform(translationX: centerX, y: 0)
             sSelf.slideView.transform = CGAffineTransform(translationX: centerX, y: 0)
-            
+            let differ = sSelf.verticalAngleLine[sSelf.lineNumber] - sSelf.pitch
             if
                 Double(totalAngle) >= sSelf.horizontalDegreeUnit * Double(sSelf.numOfPicture),
-                abs(slideCurrentCenterY - viewHeight) <= 10.0 {
+                abs(slideCurrentCenterY - viewHeight) <= 10.0, abs(differ) <= 5.0 {
                 sSelf.takePicture()
                 if sSelf.numOfPicture != 0, sSelf.numOfPicture % sSelf.numOfHorizontalPic == 0 {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {
@@ -335,10 +371,10 @@ extension ViewController {
 extension ViewController {
     
     private func setupCoreMotion() {
-        motionManager.gyroUpdateInterval            = 0.0001
+        motionManager.gyroUpdateInterval            = 0.00001
         motionManager.magnetometerUpdateInterval    = 0.00001
         motionManager.accelerometerUpdateInterval   = 0.00001
-        motionManager.deviceMotionUpdateInterval    = 1
+        motionManager.deviceMotionUpdateInterval    = 0.00001
         let operation = OperationQueue.current!
         setupDeviceMotionUpdate(motionManager: motionManager, operation: operation)
         setupAccelerometerUpdate(motionManager: motionManager, operation: operation)
@@ -355,9 +391,15 @@ extension ViewController {
                 print(err.localizedDescription)
                 return
             }
-            sSelf.roll = data?.attitude.roll ?? 0.0
-            sSelf.pitch = data?.attitude.pitch ?? 0.0
-            sSelf.yaw = data?.attitude.yaw ?? 0.0
+            sSelf.roll = (data?.attitude.roll ?? 0.0)
+            sSelf.pitch = (data?.attitude.pitch ?? 0.0)
+            sSelf.yaw = (data?.attitude.yaw ?? 0.0) + Double.pi
+//            if let q = data?.attitude.quaternion {
+//                let rpy = sSelf.quaternionToRPY(q: q)
+//                sSelf.roll = rpy.0
+//                sSelf.pitch = rpy.1
+//                sSelf.yaw = rpy.2
+//            }
         }
     }
     
@@ -403,6 +445,27 @@ extension ViewController {
             self.magneticZ = data?.magneticField.z ?? 0.0
         }
     }
+    
+    private func quaternionToRPY(q: CMQuaternion) -> (Double, Double, Double) {
+        var roll = 0.0
+        var pitch = 0.0
+        var yaw = 0.0
+        // roll (x-axis rotation)
+        let sinr_cosp = 2.0 * (q.w * q.x + q.y * q.z)
+        let cosr_cosp = 1.0 - 2.0 * (q.x * q.x + q.y * q.y)
+        roll = atan2(sinr_cosp, cosr_cosp)
+        
+        // pitch (y-axis rotation)
+        let sinp = 2.0 * (q.w * q.y - q.z * q.x)
+        pitch = asin(min(1,max(-1, sinp)))
+        
+        // yaw (z-axis rotation)
+        let siny_cosp = 2.0 * (q.w * q.z + q.x * q.y)
+        let cosy_cosp = 1.0 - 2.0 * (q.y * q.y + q.z * q.z)
+        yaw = atan2(siny_cosp, cosy_cosp)
+        
+        return (roll, pitch, yaw)
+    }
 }
 
 // MARK: Setup camera screen
@@ -410,6 +473,7 @@ extension ViewController {
 extension ViewController {
     
     private func setupCaptureSession() {
+        
         captureSession.sessionPreset = AVCaptureSession.Preset.photo
     }
     
@@ -425,6 +489,74 @@ extension ViewController {
             }
         }
         currentCamera = backCamera
+        
+        
+        do {
+            try currentCamera?.lockForConfiguration()
+        } catch {
+            print(error)
+        }
+        captureSession.beginConfiguration()
+        
+        //HDR Property
+        if appDelegate.hdr {
+            if currentCamera?.activeFormat.isVideoHDRSupported == true {
+                currentCamera?.automaticallyAdjustsVideoHDREnabled = false
+                currentCamera?.isVideoHDREnabled = true
+            }
+        } else {
+            if currentCamera?.activeFormat.isVideoHDRSupported == true {
+                currentCamera?.automaticallyAdjustsVideoHDREnabled = false
+                currentCamera?.isVideoHDREnabled = false
+            }
+        }
+        
+        //ExposureMode
+        if (currentCamera?.isExposurePointOfInterestSupported)! {
+            if appDelegate.Exposure == "locked" {
+                currentCamera?.exposureMode = .locked
+            } else if appDelegate.Exposure == "autoExpose" {
+                currentCamera?.exposureMode = .autoExpose
+            } else if appDelegate.Exposure == "continuousAutoFocus" {
+                currentCamera?.exposureMode = .continuousAutoExposure
+            } else if appDelegate.Exposure == "custom" {
+                currentCamera?.exposureMode = .custom
+            }
+        }
+        
+        //WhiteBalanceMode
+        if appDelegate.WhiteBalance == "locked" {
+            if (currentCamera?.isWhiteBalanceModeSupported(.locked))! {
+                currentCamera?.whiteBalanceMode = .locked
+            }
+        } else if appDelegate.WhiteBalance == "autoWhiteBalance" {
+            if (currentCamera?.isWhiteBalanceModeSupported(.autoWhiteBalance))! {
+                currentCamera?.whiteBalanceMode = .autoWhiteBalance
+            }
+        } else if appDelegate.WhiteBalance == "continuousAutoWhiteBalance" {
+            if (currentCamera?.isWhiteBalanceModeSupported(.continuousAutoWhiteBalance))! {
+                currentCamera?.whiteBalanceMode = .continuousAutoWhiteBalance
+            }
+        }
+        
+        //FocusMode
+        if appDelegate.Focus == "locked" {
+            if (currentCamera?.isFocusModeSupported(.locked))! {
+                currentCamera?.focusMode = .locked
+            }
+        } else if appDelegate.Focus == "autoFocus" {
+            if (currentCamera?.isFocusModeSupported(.autoFocus))! {
+                currentCamera?.focusMode = .autoFocus
+            }
+        } else if appDelegate.Focus == "continuousAutoFocus" {
+            if (currentCamera?.isFocusModeSupported(.continuousAutoFocus))! {
+                currentCamera?.focusMode = .continuousAutoFocus
+            }
+        }
+        
+        
+        captureSession.commitConfiguration()
+        currentCamera?.unlockForConfiguration()
     }
     
     private func setupInputOutput() {

@@ -58,7 +58,7 @@ extension RawEXIFViewController {
         let date = Date()
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MMM_dd_yyyy_hh_mm_aa"
-        let file = "\(dateFormatter.string(from: date)).txt"
+        let file = "\(dateFormatter.string(from: date)).json"
         guard let text = rawEXIF else { return  }
         guard let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else{
             return

@@ -29,6 +29,7 @@ class ImageSpecifications {
     internal var yaw: Double!
     
     internal var degree: Double!
+    internal var ring: Int!
     
     internal func toString() -> String {
         var s = ""
@@ -42,27 +43,28 @@ class ImageSpecifications {
     internal func toJson() -> JSON {
         var dictionary = [String: Any]()
         var sensorDictionary = [String: Any]()
-        var accelDic = [String: Any]()
-        accelDic["x"] = accelX
-        accelDic["y"] = accelY
-        accelDic["z"] = accelZ
-        sensorDictionary["anccelerometr"] = accelDic
-        var gyroDic = [String: Any]()
-        gyroDic["x"] = gyroX
-        gyroDic["y"] = gyroY
-        gyroDic["z"] = gyroZ
-        sensorDictionary["gyroscope"] = gyroDic
-        var magneDic = [String: Any]()
-        magneDic["x"] = magneticX
-        magneDic["y"] = magneticY
-        magneDic["z"] = magneticZ
-        sensorDictionary["magnetometr"] = magneDic
-        var rpy = [String: Any]()
-        rpy["roll"] = roll
-        rpy["pitch"] = pitch
-        rpy["yaw"] = yaw
+//        var accelDic = [String: String]()
+//        accelDic["x"] = "\(accelX!)"
+//        accelDic["y"] = "\(accelY!)"
+//        accelDic["z"] = "\(accelZ!)"
+//        sensorDictionary["anccelerometr"] = accelDic
+//        var gyroDic = [String: String]()
+//        gyroDic["x"] = "\(gyroX!)"
+//        gyroDic["y"] = "\(gyroY!)"
+//        gyroDic["z"] = "\(gyroZ!)"
+//        sensorDictionary["gyroscope"] = gyroDic
+//        var magneDic = [String: String]()
+//        magneDic["x"] = "\(magneticX!)"
+//        magneDic["y"] = "\(magneticY!)"
+//        magneDic["z"] = "\(magneticZ!)"
+//        sensorDictionary["magnetometr"] = magneDic
+        var rpy = [String: String]()
+        rpy["roll"] = "\(roll!)"
+        rpy["pitch"] = "\(pitch!)"
+        rpy["yaw"] = "\(yaw!)"
         sensorDictionary["roll_pitch_yaw"] = rpy
-        dictionary["degrees"] = degree
+        dictionary["degrees"] = "\(degree!)"
+        dictionary["ring"] = "\(ring!)"
         dictionary["sensors"] = sensorDictionary
         let json = JSON(dictionary)
         return json

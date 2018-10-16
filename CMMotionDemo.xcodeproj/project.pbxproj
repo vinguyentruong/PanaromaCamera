@@ -13,6 +13,7 @@
 		E268207E214E4D4E009F6A7C /* Number+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E268207D214E4D4E009F6A7C /* Number+Extension.swift */; };
 		E2682083214F57B9009F6A7C /* CLLocation+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2682082214F57B9009F6A7C /* CLLocation+Extension.swift */; };
 		E2682085214F8323009F6A7C /* ImageSpecifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2682084214F8323009F6A7C /* ImageSpecifications.swift */; };
+		E29055D5216F3A5400DC2F08 /* DropDownMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = E29055D4216F3A5300DC2F08 /* DropDownMenu.swift */; };
 		E2B8F670214DF9FF00D49418 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B8F66F214DF9FF00D49418 /* AppDelegate.swift */; };
 		E2B8F672214DF9FF00D49418 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B8F671214DF9FF00D49418 /* MainViewController.swift */; };
 		E2B8F675214DF9FF00D49418 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E2B8F673214DF9FF00D49418 /* Main.storyboard */; };
@@ -56,6 +57,7 @@
 		E268207D214E4D4E009F6A7C /* Number+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Number+Extension.swift"; sourceTree = "<group>"; };
 		E2682082214F57B9009F6A7C /* CLLocation+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CLLocation+Extension.swift"; sourceTree = "<group>"; };
 		E2682084214F8323009F6A7C /* ImageSpecifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageSpecifications.swift; sourceTree = "<group>"; };
+		E29055D4216F3A5300DC2F08 /* DropDownMenu.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DropDownMenu.swift; sourceTree = "<group>"; };
 		E2B8F66C214DF9FF00D49418 /* CMMotionDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CMMotionDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E2B8F66F214DF9FF00D49418 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		E2B8F671214DF9FF00D49418 /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
@@ -151,6 +153,7 @@
 		E2B8F66E214DF9FF00D49418 /* CMMotionDemo */ = {
 			isa = PBXGroup;
 			children = (
+				E29055D4216F3A5300DC2F08 /* DropDownMenu.swift */,
 				E2D08B73215339BD00954228 /* RawEXIFViewController.swift */,
 				E2D08B74215339BE00954228 /* RawEXIFViewController.xib */,
 				E2D08B71215333D400954228 /* CustomAlbum.swift */,
@@ -401,6 +404,7 @@
 			files = (
 				E268207E214E4D4E009F6A7C /* Number+Extension.swift in Sources */,
 				E2682083214F57B9009F6A7C /* CLLocation+Extension.swift in Sources */,
+				E29055D5216F3A5400DC2F08 /* DropDownMenu.swift in Sources */,
 				E2B8F672214DF9FF00D49418 /* MainViewController.swift in Sources */,
 				E2D08B75215339BE00954228 /* RawEXIFViewController.swift in Sources */,
 				E21F90322150700100A1E5A6 /* InputViewController.swift in Sources */,
@@ -584,7 +588,10 @@
 				DEVELOPMENT_TEAM = 6W9P6P6BLU;
 				INFOPLIST_FILE = CMMotionDemo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = david.CMMotionDemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
@@ -601,7 +608,10 @@
 				DEVELOPMENT_TEAM = 6W9P6P6BLU;
 				INFOPLIST_FILE = CMMotionDemo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = david.CMMotionDemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
@@ -617,7 +627,11 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				INFOPLIST_FILE = CMMotionDemoTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = david.CMMotionDemoTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
@@ -634,7 +648,11 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				INFOPLIST_FILE = CMMotionDemoTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = david.CMMotionDemoTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
@@ -650,7 +668,11 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				INFOPLIST_FILE = CMMotionDemoUITests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = david.CMMotionDemoUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
@@ -666,7 +688,11 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				INFOPLIST_FILE = CMMotionDemoUITests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = david.CMMotionDemoUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
